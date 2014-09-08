@@ -41,7 +41,7 @@ function utils:logErrorAndExit(err)
 end
 
 function utils:emptyGif()
-  ngx.exec('/_.gif')
+  return ngx.exec('/empty.gif')
 end
 
 return utils
