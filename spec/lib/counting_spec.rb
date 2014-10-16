@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'ruby-debug'
+
 describe "Counting" do
   before :each do
     @user = create :User, id: 10
@@ -8,7 +9,6 @@ describe "Counting" do
   end
 
   describe "reads action" do
-
     describe "User Hash" do
       before do
         open("http://#{HOST}/reads?post=#{@post.id}&user=#{@user.id}&author=#{@author.id}")

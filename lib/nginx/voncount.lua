@@ -15,8 +15,8 @@ local args_json = cjson.encode(args)
 local red = utils:initRedis()
 
 ok, err = red:evalsha(ngx.var.redis_counter_hash, 1, "args", args_json)
-if not ok then utils:logErrorAndExit("Error evaluating redis script: ".. err) end
+if not ok then utils:logErrorAndExit("Error evaluating redis script: " .. err) end
 
 ok, err = red:set_keepalive(10000, 1000)
-if not ok then utils:logErrorAndExit("Error setting redis keep alive ".. err) end
+if not ok then utils:logErrorAndExit("Error setting redis keep alive " .. err) end
 utils:emptyGif()

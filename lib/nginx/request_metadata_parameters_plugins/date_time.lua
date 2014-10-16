@@ -24,7 +24,7 @@ function date_time:fromString(args, str)
   args["week_year"] = args["week"] .. "_" .. args["year"]
 
   if args["week"] == "00" then
-    local last_year = tostring( tonumber(args["year"]) - 1 )
+    local last_year = tostring(tonumber(args["year"]) - 1)
     args["week_year"] = "52_" .. last_year
   end
 end

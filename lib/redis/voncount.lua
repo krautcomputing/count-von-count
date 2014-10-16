@@ -1,10 +1,10 @@
 -------------- Function to simulate inheritance -------------------------------------
--- local function inheritsFrom( baseClass )
+-- local function inheritsFrom(baseClass)
 --   local new_class = {}
 --   local class_mt = { __index = new_class }
 
 --   if baseClass then
---     setmetatable( new_class, { __index = baseClass } )
+--     setmetatable(new_class, { __index = baseClass })
 --   end
 
 --   return new_class
@@ -93,7 +93,7 @@ function Base:sevenDaysCount(should_count, key)
     for day = 0, 6, 1 do
       local curDayObjIds = dupArray(self._ids)
       if (first_day + day) > 365 then
-        curDayObjIds[4] = string.format("%03d", (tonumber(curDayObjIds[4]) + 1) )
+        curDayObjIds[4] = string.format("%03d", (tonumber(curDayObjIds[4]) + 1))
       end
       local curDayObj = Base:new(self._obj_type, curDayObjIds, self._type)
       curDayObj:count(key, 1)
@@ -160,16 +160,14 @@ local function addValuesToKey(tbl, key)
   end
 end
 
-
 --------------------------------------------------
 local mode = ARGV[2] or "live"
 local arg = ARGV[1]
 local params = cjson.decode(arg)
-local config =  cjson.decode(redis.call("get", "von_count_config_".. mode))
+local config =  cjson.decode(redis.call("get", "von_count_config_" .. mode))
 local action = params["action"]
 local defaultMethod = { change = 1, custom_functions = {} }
 local action_config = config[action]
-
 
 if action_config then
   for obj_type, methods in pairs(action_config) do

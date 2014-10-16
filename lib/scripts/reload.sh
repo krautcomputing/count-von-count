@@ -1,5 +1,5 @@
 #!/bin/bash
-DEPLOY_TO="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../.."
+DEPLOY_TO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../.."
 NGINX_DIR="/usr/local/openresty/nginx"
 
 rm -f $NGINX_DIR/conf/include/vars.conf

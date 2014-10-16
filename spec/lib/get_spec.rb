@@ -1,13 +1,14 @@
 require 'spec_helper'
+
 describe "Get" do
   before do
     @user = create :User
-    @author= create :User
+    @author = create :User
     open("http://#{HOST}/reads?user=#{@user.id}&author=#{@author.id}")
   end
 
   def get(query_string)
-    JSON.parse(open("http://#{HOST}/get?#{query_string}").read.gsub("\n", "") )
+    JSON.parse(open("http://#{HOST}/get?#{query_string}").read.gsub("\n", ""))
   end
 
   describe "Header" do

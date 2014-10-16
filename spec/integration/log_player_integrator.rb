@@ -61,6 +61,4 @@ Spec::Runner.configure do |config|
     #{spec_config["log_player_redis_db"]} \
     `
   end
-
-
 end
