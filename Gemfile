@@ -1,11 +1,6 @@
 source 'https://rubygems.org'
 
 group :development, :test do
-  gem 'guard'
-  gem 'guard-rspec'
-  gem 'rspec'
-  gem 'redis'
-  gem 'redis-rails'
-  gem 'capistrano'
-  gem 'json'
+  gem 'guard-rspec',  '~> 4.3'
+  gem 'redis-rails',  '~> 4.0'
 end

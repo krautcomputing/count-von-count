@@ -1,23 +1,22 @@
 require 'open-uri'
 require 'script_loader'
-require 'rubygems'
 require 'redis'
-require 'json'
-require 'support/redis_object_factory'
-require "integration/log_player_integrator"
 
-HOST = "127.0.0.1"
+Dir[File.expand_path('../support/**/*.rb', __FILE__)].each { |f| require f }
 
-def spec_config
-  @spec_config ||= YAML.load_file('spec/config/spec_config.yml') rescue {}
-end
+HOST                   = '127.0.0.1'
+REDIS_HOST             = '127.0.0.1'
+REDIS_PORT             = 6379
+REDIS_DB               = 0
+LOG_PLAYER_INTEGRATION = false
+LOG_PLAYER_REDIS_DB    = 1
 
-spec_config["redis_port"]
-lib = File.expand_path('../../lib', __FILE__)
-$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+# lib = File.expand_path('../../lib', __FILE__)
+# $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
-$redis = Redis.new(host: spec_config["redis_host"], port: spec_config["redis_port"], db: spec_config["redis_db"])
-$log_player_redis = Redis.new(host: HOST, port: spec_config["redis_port"] , db: spec_config["log_player_redis_db"])
+$redis = Redis.new(host: REDIS_HOST, port: REDIS_PORT, db: REDIS_DB)
+$log_player_redis = Redis.new(host: HOST, port: REDIS_PORT , db: LOG_PLAYER_REDIS_DB)
+
 ScriptLoader.load
 RedisObjectFactory.redis = $redis
 
@@ -26,3 +25,66 @@ def create(type, ids = nil)
   RedisObjectFactory.new(type, ids)
 end
 
+RSpec.configure do |config|
+  config.run_all_when_everything_filtered = true
+  config.filter_run :focus
+  config.order = 'random'
+
+  if LOG_PLAYER_INTEGRATION
+    config.before :all do
+      flush_keys
+      ScriptLoader.clean_access_log
+      ScriptLoader.restart_nginx
+    end
+
+    config.after :all do
+      compare_log_player_values_to_real_time_values
+    end
+  end
+
+end
+
+def compare_log_player_values_to_real_time_values
+  run_log_player
+  $redis.keys.each do |key|
+    if !unrelevant_keys.include?(key)
+      if !compare_value(key)
+        raise RSpec::Expectations::ExpectationNotMetError, "Log Player Intregration: difference in #{key}"
+      end
+    end
+  end
+end
+
+def flush_keys
+  [$redis, $log_player_redis].each do |redis|
+    cache_keys = redis.keys('*').reject { |key| key =~ /^von_count_config/ }
+    redis.del cache_keys if cache_keys.any?
+  end
+end
+
+def unrelevant_keys
+  %w(von_count_config_live)
+end
+
+def compare_value(key)
+  case $redis.type(key)
+  when 'hash'
+    $redis.hgetall(key) == $log_player_redis.hgetall(key)
+  when 'zset'
+    $redis.zrevrange(key, 0, -1, withscores: true) == $log_player_redis.zrevrange(key, 0, -1, withscores: true)
+  when 'string'
+    $redis.get(key) == $log_player_redis.get(key)
+  else
+    false
+  end
+end
+
+def run_log_player
+  `lua \
+    /usr/local/openresty/nginx/count-von-count/lib/log_player.lua \
+    /usr/local/openresty/nginx/logs/access.log \
+    #{REDIS_HOST} \
+    #{REDIS_PORT} \
+    #{LOG_PLAYER_REDIS_DB}
+  `
+end
