@@ -6,8 +6,6 @@ require 'redis'
 require 'json'
 require 'support/redis_object_factory'
 require "integration/log_player_integrator"
-#uncomment the following line to use spork with the debugger
-#require 'spork/ext/ruby-debug'
 
 HOST = "127.0.0.1"
 

@@ -1,4 +1,3 @@
-require 'ruby-debug'
 require 'spec_helper'
 
 def self.spec_config
