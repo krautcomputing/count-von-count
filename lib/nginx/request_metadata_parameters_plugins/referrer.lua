@@ -14,7 +14,7 @@ end
 
 function referrer:fromString(args, url)
   local parsed_url = socket_url.parse(url)
-  if parsed_url then
+  if parsed_url and parsed_url.scheme and parsed_url.host then
     args["referrer"] = parsed_url.scheme .. "://" .. parsed_url.host .. (parsed_url.path or "")
   else
     args["referrer"] = ""
