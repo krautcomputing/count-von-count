@@ -1,6 +1,9 @@
 local utils = require "utils"
 
-ngx.header["Cache-Control"] = "no-cache"
+ngx.header["Cache-Control"] = "no-cache, no-store, must-revalidate"
+ngx.header["Pragma"]        = "no-cache"
+ngx.header["Expires"]       = "0"
+
 local args = ngx.req.get_query_args()
 args = utils:normalizeKeys(args)
 args["action"] = ngx.var.action
